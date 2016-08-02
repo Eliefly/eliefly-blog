@@ -115,10 +115,10 @@ def create_args_string(num):
 # 定义 Field 类，它负责保存数据库表的字段名和字段类型
 class Field(object):
 	def __init__(self, name, column_type, primary_key, default):
-		self.name = name
-		self.column_type = column_type
-		self.primary_key = primary_key
-		self.default = default
+		self.name = name # 字段名
+		self.column_type = column_type # 字段类型
+		self.primary_key = primary_key # 是否为主键
+		self.default = default # 默认值
 
 	def __str__(self):
 		return '<%s, %s:%s>' % (self.__class__.__name__, self.column_type, self.name)
@@ -126,6 +126,7 @@ class Field(object):
 
 # 在 Field 的基础上，进一步定义各种类型的 Field
 class StringField(Field):
+	# default=None表示没有默认值，
 	def __init__(self, name=None, primary_key=False, default=None, ddl='varchar(100)'):
 		super().__init__(name, ddl, primary_key, default)
 

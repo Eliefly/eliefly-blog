@@ -33,7 +33,7 @@ def get_page_index(page_str):
 	try:
 		p = int(page_str)
 	except ValueError as e:
-		pass
+		print(e)
 	if p < 1:
 		p = 1
 	return p
@@ -90,7 +90,7 @@ def cookie2user(cookie_str):
 		# 返回合法的user
 		return user
 	except Exception as e:
-		logging.excepetion(e)
+		logging.exception(e)
 		return None
 
 
@@ -327,8 +327,68 @@ def api_create_blog(request, *, name, summary, content):
 
 # ------------end Day 11 - 编写日志创建页---------------------------------------
 
+# eliefly fix edit&delete blog
+# @post('/manage/blogs/edit?id={id}')
+# def edit_blog():
+#   # check_admin(request)
+#   # blog = yield from Blog.find(id)
+#   return {'__template__': 'manage_blog_edit.html',
+#           'id': '',
+#           'action': '/api/blogs'}
+
+
+# 编辑已有的博客页面，与建立博客/manage/blogs/create对比
+@get('/manage/blogs/edit')
+def manage_edit_blog(*, id):
+	return {'__template__': 'manage_blog_edit.html',
+			'id': id,
+			'action': '/api/blogs/%s' % id}
+
+# 修改日志
+@post('/api/blogs/{id}')
+def api_update_blog(id, request, *, name, summary, content):
+	check_admin(request)
+	blog = yield from Blog.find(id)
+	if not name or not name.strip():
+		raise APIValueError('name', 'name cannot be empty.')
+	if not summary or not summary.strip():
+		raise APIValueError('summary', 'summary cannot be empty.')
+	if not content or not content.strip():
+		raise APIValueError('content', 'content cannot be empty.')
+	blog.name = name.strip()
+	blog.summary = summary.strip()
+	blog.content = content.strip()
+	yield from blog.update()
+	return blog
+
+
+# eliefly 删除某个博客
+# @post('/api/blogs/{id}/delete')
+# def api_delete_blog(id, request):
+#   logging.info(id)
+#   # 先检查是否是管理员操作，只有管理员才有删除评论权限
+#   check_admin(request)
+#   # 查询一下评论id是否有对应的评论
+#   c = yield from Blog.find(id)
+#   # 没有的话抛出错误
+#   if c is None:
+#       raise APIResourceNotFoundError('Blog')
+#   # 有的话删除
+#   yield from c.remove()
+#   return dict(id=id)
+
+
+@post('/api/blogs/{id}/delete')
+def api_delete_blog(request, *, id):
+	check_admin(request)
+	blog = yield from Blog.find(id)
+	yield from blog.remove()
+	return dict(id=id)
+
+
 
 # ---------------------------------进入某条博客---------------------------------
+# 日志详情页
 @get('/blog/{id}')
 def get_blog(id):
 	# 根据博客id查询该博客信息
