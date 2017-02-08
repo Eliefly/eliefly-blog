@@ -1,2 +1,2 @@
 # eliefly-blog
-liao xuefeng blog lerning
+liao xuefeng blog learning
